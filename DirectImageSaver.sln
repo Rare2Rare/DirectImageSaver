@@ -1,0 +1,50 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.0.31903.59
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{7F414A55-4EF0-4EA4-8856-0E683988464B}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DirectImageSaver.Core", "src\DirectImageSaver.Core\DirectImageSaver.Core.csproj", "{6919DA57-1A77-4BAD-9956-17F0F8E4749F}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DirectImageSaver.App", "src\DirectImageSaver.App\DirectImageSaver.App.csproj", "{A035FEC1-CBB8-46D1-AFB5-4AF8E44EA1F7}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DirectImageSaver.NativeHost", "src\DirectImageSaver.NativeHost\DirectImageSaver.NativeHost.csproj", "{9BFC25E7-E4E9-43DA-B1E8-40A729E2B6EE}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "tests", "tests", "{746175FA-1252-4127-ACB0-1AAB5D221C31}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DirectImageSaver.Core.Tests", "tests\DirectImageSaver.Core.Tests\DirectImageSaver.Core.Tests.csproj", "{51D3232B-C202-4226-9954-42AF01A88ED1}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{6919DA57-1A77-4BAD-9956-17F0F8E4749F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{6919DA57-1A77-4BAD-9956-17F0F8E4749F}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{6919DA57-1A77-4BAD-9956-17F0F8E4749F}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{6919DA57-1A77-4BAD-9956-17F0F8E4749F}.Release|Any CPU.Build.0 = Release|Any CPU
+		{A035FEC1-CBB8-46D1-AFB5-4AF8E44EA1F7}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{A035FEC1-CBB8-46D1-AFB5-4AF8E44EA1F7}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{A035FEC1-CBB8-46D1-AFB5-4AF8E44EA1F7}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{A035FEC1-CBB8-46D1-AFB5-4AF8E44EA1F7}.Release|Any CPU.Build.0 = Release|Any CPU
+		{9BFC25E7-E4E9-43DA-B1E8-40A729E2B6EE}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{9BFC25E7-E4E9-43DA-B1E8-40A729E2B6EE}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{9BFC25E7-E4E9-43DA-B1E8-40A729E2B6EE}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{9BFC25E7-E4E9-43DA-B1E8-40A729E2B6EE}.Release|Any CPU.Build.0 = Release|Any CPU
+		{51D3232B-C202-4226-9954-42AF01A88ED1}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{51D3232B-C202-4226-9954-42AF01A88ED1}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{51D3232B-C202-4226-9954-42AF01A88ED1}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{51D3232B-C202-4226-9954-42AF01A88ED1}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{6919DA57-1A77-4BAD-9956-17F0F8E4749F} = {7F414A55-4EF0-4EA4-8856-0E683988464B}
+		{A035FEC1-CBB8-46D1-AFB5-4AF8E44EA1F7} = {7F414A55-4EF0-4EA4-8856-0E683988464B}
+		{9BFC25E7-E4E9-43DA-B1E8-40A729E2B6EE} = {7F414A55-4EF0-4EA4-8856-0E683988464B}
+		{51D3232B-C202-4226-9954-42AF01A88ED1} = {746175FA-1252-4127-ACB0-1AAB5D221C31}
+	EndGlobalSection
+EndGlobal

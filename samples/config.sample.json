@@ -1,0 +1,13 @@
+{
+  "saveDirectory": "C:\\SavedImages",
+  "triggerMode": "ShiftRightClick",
+  "successSoundEnabled": true,
+  "errorSoundEnabled": true,
+  "autoStart": true,
+  "filenamePattern": "{site}_{yyyyMMdd_HHmmss}_{seq}",
+  "supportedBrowsers": [
+    "chrome",
+    "edge"
+  ],
+  "logLevel": "Information"
+}

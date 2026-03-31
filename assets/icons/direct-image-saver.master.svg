@@ -1,0 +1,33 @@
+<svg width="256" height="256" viewBox="0 0 256 256" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="frameStroke" x1="52" y1="44" x2="208" y2="184" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#0D6C78"/>
+      <stop offset="1" stop-color="#063F50"/>
+    </linearGradient>
+    <linearGradient id="panelFill" x1="58" y1="66" x2="174" y2="150" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#8AEAF4" stop-opacity="0.34"/>
+      <stop offset="1" stop-color="#0A2936" stop-opacity="0.08"/>
+    </linearGradient>
+    <linearGradient id="arrowFill" x1="111" y1="76" x2="168" y2="178" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#B8FDFF"/>
+      <stop offset="0.55" stop-color="#43D9EB"/>
+      <stop offset="1" stop-color="#0F9DB7"/>
+    </linearGradient>
+    <linearGradient id="arrowHighlight" x1="116" y1="86" x2="146" y2="156" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#F0FFFF" stop-opacity="0.95"/>
+      <stop offset="1" stop-color="#F0FFFF" stop-opacity="0"/>
+    </linearGradient>
+  </defs>
+
+  <path d="M44 58L74 28" stroke="#24E0EB" stroke-width="12" stroke-linecap="square"/>
+  <path d="M62 76L88 50" stroke="#24E0EB" stroke-width="10" stroke-linecap="square" opacity="0.9"/>
+
+  <rect x="38" y="50" width="164" height="120" rx="16" fill="url(#frameStroke)"/>
+  <rect x="56" y="68" width="128" height="84" rx="10" fill="url(#panelFill)"/>
+  <circle cx="90" cy="92" r="11" fill="#B5FCFF" opacity="0.55"/>
+  <path d="M67 139L103 107L127 128L175 89V152H67V139Z" fill="#D9FBFF" opacity="0.18"/>
+
+  <path d="M124 78C124 71.3726 129.373 66 136 66C142.627 66 148 71.3726 148 78V127H164C170.008 127 173.063 134.275 168.849 138.566L142.849 165.032C139.117 168.831 132.883 168.831 129.151 165.032L103.151 138.566C98.9368 134.275 101.992 127 108 127H124V78Z" fill="#052D39"/>
+  <path d="M127 76C127 70.4772 131.477 66 137 66C142.523 66 147 70.4772 147 76V129H163C168.453 129 171.226 135.601 167.403 139.493L142.403 164.942C139.016 168.39 133.484 168.39 130.097 164.942L105.097 139.493C101.274 135.601 104.047 129 109.5 129H127V76Z" fill="url(#arrowFill)"/>
+  <path d="M133 78C133 75.2386 135.239 73 138 73C140.761 73 143 75.2386 143 78V135C143 137.761 140.761 140 138 140C135.239 140 133 137.761 133 135V78Z" fill="url(#arrowHighlight)"/>
+</svg>
