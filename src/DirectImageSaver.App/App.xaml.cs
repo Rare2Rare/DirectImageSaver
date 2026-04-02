@@ -65,9 +65,20 @@ public partial class App : System.Windows.Application
             (message, exception) => _logService?.LogError("PipeServer", "UnhandledPipeError", message, exception));
         _pipeServer.Start();
 
-        if (ShouldOpenSettings(e.Args) || !EnsureSaveDirectoryReady(settings))
+        if (ShouldOpenSettings(e.Args) || !EnsureSaveDirectoryReady(settings) || ShouldOpenOnboarding(e.Args))
         {
-            Dispatcher.BeginInvoke(OpenSettingsDialog);
+            Dispatcher.BeginInvoke(() =>
+            {
+                if (ShouldOpenSettings(e.Args) || !EnsureSaveDirectoryReady(settings))
+                {
+                    OpenSettingsDialog();
+                }
+
+                if (ShouldOpenOnboarding(e.Args))
+                {
+                    OpenExtensionGuideDialog();
+                }
+            });
         }
     }
 
@@ -125,6 +136,7 @@ public partial class App : System.Windows.Application
         menu.Items.Add(AppText.MenuSettings, null, (_, _) => OpenSettingsDialog());
         menu.Items.Add(AppText.MenuOpenSaveFolder, null, (_, _) => OpenSaveFolder());
         menu.Items.Add(AppText.MenuOpenLogs, null, (_, _) => OpenLogFolder());
+        menu.Items.Add(AppText.MenuExtensionGuide, null, (_, _) => OpenExtensionGuideDialog());
 
         var autoStartItem = new Forms.ToolStripMenuItem(AppText.MenuRunAtSignIn)
         {
@@ -175,6 +187,12 @@ public partial class App : System.Windows.Application
         _settingsService.Save(settings);
         _autoStartService.SetEnabled(enabled, Environment.ProcessPath ?? Process.GetCurrentProcess().MainModule!.FileName!);
         RefreshTrayMenu();
+    }
+
+    private void OpenExtensionGuideDialog()
+    {
+        var window = new ExtensionSetupWindow();
+        window.ShowDialog();
     }
 
     private void OpenSettingsDialog()
@@ -248,6 +266,11 @@ public partial class App : System.Windows.Application
         args.Any(argument =>
             argument.Equals("--show-settings", StringComparison.OrdinalIgnoreCase)
             || argument.Equals("/show-settings", StringComparison.OrdinalIgnoreCase));
+
+    private static bool ShouldOpenOnboarding(IEnumerable<string> args) =>
+        args.Any(argument =>
+            argument.Equals("--show-onboarding", StringComparison.OrdinalIgnoreCase)
+            || argument.Equals("/show-onboarding", StringComparison.OrdinalIgnoreCase));
 
     private static Icon? LoadTrayIcon()
     {

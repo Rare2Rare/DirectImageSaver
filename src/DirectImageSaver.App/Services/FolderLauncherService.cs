@@ -18,4 +18,13 @@ public sealed class FolderLauncherService
             UseShellExecute = true
         });
     }
+
+    public void OpenLocation(string target)
+    {
+        Process.Start(new ProcessStartInfo
+        {
+            FileName = target,
+            UseShellExecute = true
+        });
+    }
 }

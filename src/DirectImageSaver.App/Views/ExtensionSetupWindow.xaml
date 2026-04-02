@@ -1,0 +1,119 @@
+<Window x:Class="DirectImageSaver.App.Views.ExtensionSetupWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="DirectImageSaver 拡張設定"
+        Width="620"
+        Height="560"
+        ResizeMode="NoResize"
+        WindowStartupLocation="CenterScreen">
+    <Grid Margin="18">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="*" />
+            <RowDefinition Height="Auto" />
+        </Grid.RowDefinitions>
+
+        <TextBlock x:Name="HeadingTextBlock"
+                   Grid.Row="0"
+                   Margin="0,0,0,8"
+                   FontSize="22"
+                   FontWeight="SemiBold" />
+        <TextBlock x:Name="DescriptionTextBlock"
+                   Grid.Row="1"
+                   Margin="0,0,0,16"
+                   TextWrapping="Wrap" />
+
+        <TextBlock x:Name="PathLabelTextBlock"
+                   Grid.Row="2"
+                   Margin="0,0,0,6"
+                   FontWeight="SemiBold" />
+        <TextBox x:Name="ExtensionPathTextBox"
+                 Grid.Row="3"
+                 Margin="0,0,0,14"
+                 IsReadOnly="True"
+                 VerticalContentAlignment="Center" />
+
+        <StackPanel Grid.Row="4"
+                    Margin="0,0,0,14"
+                    Orientation="Vertical">
+            <TextBlock x:Name="Step1TextBlock"
+                       Margin="0,0,0,4"
+                       TextWrapping="Wrap" />
+            <TextBlock x:Name="Step2TextBlock"
+                       Margin="0,0,0,4"
+                       TextWrapping="Wrap" />
+            <TextBlock x:Name="Step3TextBlock"
+                       Margin="0,0,0,4"
+                       TextWrapping="Wrap" />
+            <TextBlock x:Name="Step4TextBlock"
+                       Margin="0,0,0,8"
+                       TextWrapping="Wrap" />
+            <TextBlock x:Name="ExtensionIdTextBlock"
+                       FontFamily="Consolas" />
+        </StackPanel>
+
+        <UniformGrid Grid.Row="5"
+                     Margin="0,0,0,12"
+                     Columns="3"
+                     Rows="1">
+            <Button x:Name="OpenChromeButton"
+                    Margin="0,0,6,0"
+                    Height="34"
+                    Click="OpenChromeButton_OnClick" />
+            <Button x:Name="OpenEdgeButton"
+                    Margin="6,0,6,0"
+                    Height="34"
+                    Click="OpenEdgeButton_OnClick" />
+            <Button x:Name="OpenFolderButton"
+                    Margin="6,0,0,0"
+                    Height="34"
+                    Click="OpenFolderButton_OnClick" />
+        </UniformGrid>
+
+        <TextBlock x:Name="StatusTextBlock"
+                   Grid.Row="6"
+                   Margin="0,0,0,12"
+                   Foreground="#0B6E4F"
+                   TextWrapping="Wrap" />
+
+        <Border Grid.Row="7"
+                x:Name="GuideBorder"
+                Background="#F5F7FA"
+                CornerRadius="8"
+                Padding="12">
+            <Grid>
+                <TextBlock x:Name="HintTextBlock"
+                           TextWrapping="Wrap" />
+                <StackPanel x:Name="BrowserGuidePanel"
+                            Visibility="Collapsed">
+                    <TextBlock x:Name="GuideHeaderTextBlock"
+                               FontWeight="Bold"
+                               Margin="0,0,0,6" />
+                    <TextBlock x:Name="GuideStepsTextBlock"
+                               TextWrapping="Wrap"
+                               Margin="0,0,0,8" />
+                    <TextBlock x:Name="GuideFallbackTextBlock"
+                               TextWrapping="Wrap"
+                               Foreground="#666666"
+                               FontSize="12" />
+                </StackPanel>
+            </Grid>
+        </Border>
+
+        <StackPanel Grid.Row="8"
+                    Margin="0,14,0,0"
+                    Orientation="Horizontal"
+                    HorizontalAlignment="Right">
+            <Button x:Name="CloseButton"
+                    Width="90"
+                    IsCancel="True"
+                    Click="CloseButton_OnClick" />
+        </StackPanel>
+    </Grid>
+</Window>

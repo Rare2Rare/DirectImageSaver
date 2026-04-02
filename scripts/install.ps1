@@ -57,7 +57,7 @@ $runKey = "HKCU:\Software\Microsoft\Windows\CurrentVersion\Run"
 New-Item -Path $runKey -Force | Out-Null
 Set-ItemProperty -Path $runKey -Name "DirectImageSaver" -Value "`"$trayAppPath`" --background"
 
-Start-Process -FilePath $trayAppPath -ArgumentList "--background"
+Start-Process -FilePath $trayAppPath -ArgumentList "--show-onboarding"
 
 Write-Host ""
 Write-Host "DirectImageSaver installed."

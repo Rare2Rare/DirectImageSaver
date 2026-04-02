@@ -1,196 +1,120 @@
 # DirectImageSaver
 
-DirectImageSaver is a Windows tray app plus a Chrome/Edge extension for immediate save of hovered media. This release supports DOM images and direct-link videos exposed by `<video>` or `<source>` with normal `http/https` URLs.
+ブラウザ上の画像や直リンク動画を、ホットキー一発で指定フォルダーに保存する Windows 常駐アプリ + Chrome / Edge 拡張。
 
-## Build And Distribution
+## インストール
 
-Create the distributable artifacts:
+`DirectImageSaver-Setup.exe` を実行する。インストール先は自由に変更できる。
+
+セットアップ完了後、「拡張機能をセットアップ」画面が開く。
+
+### ブラウザが起動していない場合
+
+「Chrome を開く」または「Edge を開く」を押すだけ。拡張は自動で読み込まれる。
+
+### ブラウザがすでに起動している場合
+
+ボタンでブラウザを開いたあと、手動で拡張を読み込む。
+
+1. Chrome: 右上「︙」→ 拡張機能 → 拡張機能を管理
+   Edge: 右上「…」→ 拡張機能 → 拡張機能の管理
+2. 「デベロッパー モード」を ON
+3. 「パッケージ化されていない拡張機能を読み込む」をクリック
+4. インストール先の `extension` フォルダーを選ぶ（デフォルト: `%LocalAppData%\DirectImageSaver\current\extension`）
+5. 拡張名が `DirectImageSaver`、ID が `kblklkfadcpplofmmfkkplglcmomicmm` であることを確認
+
+アドレスバーに `chrome://extensions` / `edge://extensions` と入力しても設定できる。
+
+### 使う
+
+画像の上で `Shift + 右クリック`。
+
+## 3 分セットアップ
+
+[QUICKSTART.ja.md](QUICKSTART.ja.md) を参照。
+
+## 対応
+
+- Windows / Chrome / Edge
+- X (Twitter) Web、Chrome / Edge の X PWA
+- `<img>` 要素
+- `<video>` / `<source>` の http/https 直リンク動画
+- 固定フォルダーへの即保存
+
+## 非対応
+
+- CSS `background-image`、`canvas`、`video` poster
+- `blob:` URL、MediaSource、HLS / MSE / `m3u8`
+- ネイティブ X アプリ
+- 認証必須や anti-hotlink の完全対応
+
+## 制限
+
+- トリガーは `Shift + 右クリック` が初期値。`CtrlRightClick`、`AltRightClick`、`CtrlShiftS` に変更可
+- 保存は Windows 側の `HttpClient` 経由。サイト側の制限で保存できない場合がある
+- 直リンク動画のみ対応
+
+## 設定
+
+| 項目 | パス |
+|------|------|
+| 設定ファイル | `%AppData%\DirectImageSaver\config.json` |
+| ログ | `%AppData%\DirectImageSaver\logs\` |
+| 初期保存先 | `%USERPROFILE%\Pictures\DirectImageSaver` |
+
+設定画面から変更できるもの: 保存先、トリガー、成功音 / 失敗音、動画保存 ON/OFF、自動起動
+
+## ログ
+
+- `directimagesaver-app-YYYYMMDD.log`
+- `directimagesaver-nativehost-YYYYMMDD.log`
+
+`nativehost` ログが出ない → 拡張からアプリに届いていない
+`nativehost` は出るが `app` が出ない → native host からトレイアプリに届いていない
+`app` ログが出ている → 保存処理まで到達済み
+
+## トラブルシュート
+
+### 保存できない
+
+1. 拡張が読み込まれているか確認
+2. 拡張カードで `Reload`
+3. 対象ページを再読込
+4. `Shift + 右クリック` を試す
+
+確認ポイント:
+- 拡張名: `DirectImageSaver`
+- 拡張 ID: `kblklkfadcpplofmmfkkplglcmomicmm`
+- 読み込み元: インストール先の `extension` フォルダー
+
+### 拡張の管理画面に行けない
+
+- アドレスバーに `chrome://extensions` / `edge://extensions` を入力
+- または Chrome 右上「︙」→ 拡張機能 → 拡張機能を管理
+
+### ログ・設定
+
+- ログ: `%AppData%\DirectImageSaver\logs\`
+- 設定: `%AppData%\DirectImageSaver\config.json`
+
+## 開発
+
+### 配布物の生成
 
 ```powershell
-cd F:\DirectImageSaver
 .\scripts\publish.ps1
 ```
 
-Outputs:
+`artifacts\publish\`、`artifacts\DirectImageSaver.zip`、`artifacts\DirectImageSaver-Setup.exe` が生成される。
 
-- `artifacts\publish\` as the unpacked distribution root
-- `artifacts\DirectImageSaver.zip` as the ZIP distribution
-
-The ZIP and unpacked distribution include only:
-
-- `app`
-- `nativehost`
-- `extension`
-- `scripts\install.ps1`
-- `scripts\uninstall.ps1`
-- `scripts\register-native-host.ps1`
-- `README.md`
-
-## Installation
-
-### From repository
+### ZIP から手動インストール
 
 ```powershell
-cd F:\DirectImageSaver
 .\scripts\install.ps1
 ```
 
-### From distribution ZIP
-
-1. Extract `DirectImageSaver.zip`
-2. Open PowerShell in the extracted folder
-3. Run:
-
-   ```powershell
-   .\scripts\install.ps1
-   ```
-
-The install script supports both repository mode and extracted distribution mode.
-
-## Chrome / Edge Extension Loading
-
-1. Open `chrome://extensions` or `edge://extensions`
-2. In Chrome from the menu: `3-dot menu > Extensions > Manage Extensions`
-3. In Edge from the menu: `3-dot menu > Extensions > Manage Extensions`
-4. Enable Developer Mode
-5. Click `Load unpacked`
-6. Select `%LocalAppData%\DirectImageSaver\current\extension`
-7. Confirm the extension name is `DirectImageSaver`
-8. Confirm the extension ID is `kblklkfadcpplofmmfkkplglcmomicmm`
-9. After reinstalling or re-registering Native Messaging, click `Reload`
-10. Refresh the target tab before testing save triggers
-
-## Native Messaging Host Registration
-
-The install script writes the host manifest to:
-
-- `%LocalAppData%\DirectImageSaver\current\nativehost\com.directimagesaver.host.json`
-
-It registers that manifest under:
-
-- `HKCU\Software\Google\Chrome\NativeMessagingHosts\com.directimagesaver.host`
-- `HKCU\Software\Microsoft\Edge\NativeMessagingHosts\com.directimagesaver.host`
-
-Manual re-registration:
-
-```powershell
-.\scripts\register-native-host.ps1 -ManifestPath "$env:LOCALAPPDATA\DirectImageSaver\current\nativehost\com.directimagesaver.host.json"
-```
-
-## Configuration File
-
-- Path: `%AppData%\DirectImageSaver\config.json`
-
-Default settings:
-
-- save folder: `%USERPROFILE%\Pictures\DirectImageSaver`
-- trigger: `ShiftRightClick`
-- success sound: on
-- error sound: on
-- direct-link video save: on
-- auto start: on
-
-## Changing The Save Folder
-
-- Right-click the tray icon
-- Open `Settings`
-- Select a new folder
-- Save
-
-## Supported Scope
-
-- Windows
-- Chrome
-- Edge
-- X (Twitter) Web
-- X (Twitter) PWA installed from Chrome/Edge
-- DOM `<img>` elements
-- DOM `<video>` / `<source>` elements with normal `http/https` media URLs
-- Fixed-folder immediate save
-
-## Non-Supported Scope
-
-- CSS `background-image`
-- `canvas` rendered images
-- `video` posters
-- `blob:` or MediaSource-backed playback
-- HLS / MSE playback and `m3u8` streams
-- native Windows apps in general
-- the standalone native X/Twitter app
-- authenticated or anti-hotlink protected images or videos that reject normal HTTP requests
-- automatic conversion, duplicate detection, hashing, classification, or AI sorting
-
-## Known Limitations
-
-- `Shift + Right Click` can conflict with site handlers or other extensions. Switch `triggerMode` to `CtrlRightClick`, `AltRightClick`, or `CtrlShiftS` if needed.
-- `CtrlRightClick`, `ShiftRightClick`, and `AltRightClick` are detected on `mousedown`, so trigger changes may require extension reload plus page reload.
-- Direct-link video saving supports only `http/https` URLs exposed by `<video>` / `<source>`.
-- `blob:` URLs, MediaSource playback, HLS, and MSE are out of scope in this release.
-- Some protected image or video URLs reject `HttpClient` even with `User-Agent`, `Referer`, and `Accept` headers.
-- The standalone native X/Twitter application is not supported.
-- PWA behavior depends on the browser continuing to allow extensions inside installed PWAs.
-
-## Sounds
-
-- Success: Windows standard `Asterisk`
-- Failure: Windows standard `Hand`
-
-## Logs
-
-- Directory: `%AppData%\DirectImageSaver\logs\`
-- Files:
-  - `directimagesaver-app-YYYYMMDD.log`
-  - `directimagesaver-nativehost-YYYYMMDD.log`
-
-Check `nativehost` first when the extension cannot talk to Windows. Check `app` when the request reached the tray app and the save itself failed.
-
-## Troubleshooting
-
-If the normal browser context menu opens and no save happens:
-
-1. Open `chrome://extensions`
-2. Confirm `DirectImageSaver` is listed
-3. Confirm the ID is `kblklkfadcpplofmmfkkplglcmomicmm`
-4. Confirm it was loaded from `%LocalAppData%\DirectImageSaver\current\extension`
-5. Click `Reload`
-6. Refresh the page
-7. Try again on a plain public `<img>` or direct-link `<video>`
-
-Interpretation:
-
-- `DirectImageSaver` is missing: the extension is not installed in that profile
-- no new `directimagesaver-nativehost-*.log`: the browser never reached Native Messaging
-- new `nativehost` log but no new `app` log: the native host could not reach the tray app
-- new `app` log: the save pipeline is running, so the remaining issue is download or file save handling
-
-## Setup Scripts
-
-- `scripts/publish.ps1`: publish binaries, collect distribution files, and create `artifacts\DirectImageSaver.zip`
-- `scripts/install.ps1`: install from either repository output or extracted distribution package
-- `scripts/uninstall.ps1`: remove Native Messaging registration, startup registration, and installed binaries
-
-## Testing
-
-### Automated
+### テスト
 
 ```powershell
 dotnet test .\DirectImageSaver.sln
 ```
-
-### Manual checklist
-
-1. Save `jpg`, `png`, `gif`, `webp`, and `avif`
-2. Save an image selected from `srcset`
-3. Save a `<video src="...mp4">`
-4. Save a `<video><source src="...webm"></video>`
-5. Save multiple files in the same second and confirm `_01`, `_02`, `_03`
-6. Save images on X Web in Chrome
-7. Save images on X Web in Edge
-8. Save images in the Chrome/Edge-installed X PWA
-9. Confirm failure logging when:
-   - the URL is broken
-   - the save folder is missing
-   - Native Messaging is not registered
-   - `Shift + Right Click` is blocked by the page
-   - the video URL is `blob:` or otherwise unsupported
-10. Confirm `Ctrl + Right Click` suppresses the browser context menu and triggers save when `triggerMode` is `CtrlRightClick`
