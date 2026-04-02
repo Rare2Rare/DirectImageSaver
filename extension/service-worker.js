@@ -2,7 +2,10 @@ const HOST_NAME = "com.directimagesaver.host";
 const DEFAULT_TRIGGER_MODE = "ShiftRightClick";
 const CONFIG_CACHE_TTL_MS = 30_000;
 
-let cachedConfig = { triggerMode: DEFAULT_TRIGGER_MODE };
+let cachedConfig = {
+  triggerMode: DEFAULT_TRIGGER_MODE,
+  enableVideoSave: true
+};
 let cachedConfigExpiresAt = 0;
 
 chrome.runtime.onMessage.addListener((message, _sender, sendResponse) => {
@@ -15,22 +18,25 @@ async function handleMessage(message) {
     return { ok: false, errorCode: "InvalidMessage", message: "Message type is missing." };
   }
 
-  if (message.type === "getTriggerMode") {
+  // Keep getTriggerMode for older tabs until every active content script is refreshed.
+  if (message.type === "getRuntimeConfig" || message.type === "getTriggerMode") {
     const config = await getConfig();
     return {
       ok: true,
-      triggerMode: config.triggerMode || DEFAULT_TRIGGER_MODE
+      triggerMode: config.triggerMode || DEFAULT_TRIGGER_MODE,
+      enableVideoSave: config.enableVideoSave !== false
     };
   }
 
-  if (message.type === "saveHoveredImage") {
+  // Keep saveHoveredImage for older tabs until every active content script is refreshed.
+  if (message.type === "saveHoveredMedia" || message.type === "saveHoveredImage") {
     const response = await sendNativeMessage({
-      type: "saveImage",
-      payload: message.payload
+      type: "saveMedia",
+      payload: normalizeSavePayload(message.payload, message.type)
     });
 
     if (!response || !response.ok) {
-      console.warn("DirectImageSaver: saveImage failed", response);
+      console.warn(`DirectImageSaver: saveMedia failed. ${formatNativeResponse(response)}`);
     }
 
     return response;
@@ -43,6 +49,16 @@ async function handleMessage(message) {
   };
 }
 
+function normalizeSavePayload(payload, messageType) {
+  const source = payload && typeof payload === "object" ? payload : {};
+  const mediaType = source.mediaType || (messageType === "saveHoveredImage" ? "Image" : undefined);
+
+  return {
+    ...source,
+    ...(mediaType ? { mediaType } : {})
+  };
+}
+
 async function getConfig() {
   if (cachedConfig && cachedConfigExpiresAt > Date.now()) {
     return cachedConfig;
@@ -50,12 +66,15 @@ async function getConfig() {
 
   const response = await sendNativeMessage({ type: "getConfig" });
   if (response && response.ok && response.config) {
-    cachedConfig = response.config;
+    cachedConfig = {
+      ...cachedConfig,
+      ...response.config
+    };
     cachedConfigExpiresAt = Date.now() + CONFIG_CACHE_TTL_MS;
     return cachedConfig;
   }
 
-  console.warn("DirectImageSaver: unable to fetch config from native host", response);
+  console.warn(`DirectImageSaver: unable to fetch config from native host. ${formatNativeResponse(response)}`);
   return cachedConfig;
 }
 
@@ -64,7 +83,7 @@ function sendNativeMessage(request) {
     chrome.runtime.sendNativeMessage(HOST_NAME, request, (response) => {
       const runtimeError = chrome.runtime.lastError;
       if (runtimeError) {
-        console.warn("DirectImageSaver: native host unavailable", runtimeError.message);
+        console.warn(`DirectImageSaver: native host unavailable. ${runtimeError.message}`);
         resolve({
           ok: false,
           errorCode: "NativeHostUnavailable",
@@ -80,4 +99,23 @@ function sendNativeMessage(request) {
       });
     });
   });
+}
+
+function formatNativeResponse(response) {
+  if (!response || typeof response !== "object") {
+    return "No response details were returned.";
+  }
+
+  const errorCode = typeof response.errorCode === "string" && response.errorCode
+    ? response.errorCode
+    : response.ok
+      ? "Success"
+      : "UnknownError";
+  const message = typeof response.message === "string" && response.message
+    ? response.message
+    : response.ok
+      ? "Request completed."
+      : "No error message was returned.";
+
+  return `${errorCode}: ${message}`;
 }

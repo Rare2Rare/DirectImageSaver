@@ -15,7 +15,8 @@ Each entry includes:
 - `action`
 - `requestType`
 - `pageUrl`
-- `imageUrl`
+- `mediaType`
+- `mediaUrl`
 - `savePath`
 - `contentType`
 - `result`

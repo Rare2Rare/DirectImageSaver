@@ -32,7 +32,7 @@ public sealed class LogService : IDisposable
                 rollingInterval: RollingInterval.Day,
                 retainedFileCountLimit: 14,
                 outputTemplate:
-                "{Timestamp:yyyy-MM-dd HH:mm:ss.fff zzz} [{Level:u3}] action={Action} requestType={RequestType} pageUrl={PageUrl} imageUrl={ImageUrl} savePath={SavePath} contentType={ContentType} result={Result} errorMessage={ErrorMessage}{NewLine}{Message:lj}{NewLine}{Exception}{NewLine}")
+                "{Timestamp:yyyy-MM-dd HH:mm:ss.fff zzz} [{Level:u3}] action={Action} requestType={RequestType} pageUrl={PageUrl} mediaType={MediaType} mediaUrl={MediaUrl} savePath={SavePath} contentType={ContentType} result={Result} errorMessage={ErrorMessage}{NewLine}{Message:lj}{NewLine}{Exception}{NewLine}")
             .CreateLogger();
 
         _logger = _serilogLogger;
@@ -42,7 +42,7 @@ public sealed class LogService : IDisposable
         string action,
         string result,
         string message,
-        HoveredImagePayload? payload = null,
+        HoveredMediaPayload? payload = null,
         string? savePath = null,
         string? requestType = null,
         string? contentType = null)
@@ -56,7 +56,7 @@ public sealed class LogService : IDisposable
         string result,
         string message,
         Exception? exception,
-        HoveredImagePayload? payload = null,
+        HoveredMediaPayload? payload = null,
         string? savePath = null,
         string? requestType = null,
         string? contentType = null)
@@ -65,25 +65,25 @@ public sealed class LogService : IDisposable
             .Error(exception, message);
     }
 
-    public void LogSaveSuccess(HoveredImagePayload payload, string savePath, string? contentType)
+    public void LogSaveSuccess(HoveredMediaPayload payload, string savePath, string? contentType)
     {
         LogInfo(
-            "SaveImage",
+            "SaveMedia",
             "Success",
-            "Image saved successfully.",
+            "Media saved successfully.",
             payload,
             savePath,
             contentType: contentType);
     }
 
     public void LogSaveFailure(
-        HoveredImagePayload? payload,
+        HoveredMediaPayload? payload,
         string? savePath,
         SaveErrorCode errorCode,
         string message,
         Exception? exception)
     {
-        LogError("SaveImage", errorCode.ToString(), message, exception, payload, savePath);
+        LogError("SaveMedia", errorCode.ToString(), message, exception, payload, savePath);
     }
 
     public void Dispose()
@@ -99,7 +99,7 @@ public sealed class LogService : IDisposable
     private ILogger CreateContext(
         string action,
         string result,
-        HoveredImagePayload? payload,
+        HoveredMediaPayload? payload,
         string? savePath,
         string? errorMessage,
         string? requestType,
@@ -109,7 +109,8 @@ public sealed class LogService : IDisposable
             .ForContext("Action", action)
             .ForContext("RequestType", requestType ?? string.Empty)
             .ForContext("PageUrl", payload?.PageUrl ?? string.Empty)
-            .ForContext("ImageUrl", payload?.ImageUrl ?? string.Empty)
+            .ForContext("MediaType", payload?.MediaType.ToString() ?? string.Empty)
+            .ForContext("MediaUrl", payload?.MediaUrl ?? string.Empty)
             .ForContext("SavePath", savePath ?? string.Empty)
             .ForContext("ContentType", contentType ?? string.Empty)
             .ForContext("Result", result)

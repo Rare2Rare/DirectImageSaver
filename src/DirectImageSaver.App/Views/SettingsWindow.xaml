@@ -3,11 +3,12 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         Title="DirectImageSaver 設定"
         Width="520"
-        Height="310"
+        Height="340"
         ResizeMode="NoResize"
         WindowStartupLocation="CenterScreen">
     <Grid Margin="16">
         <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
             <RowDefinition Height="Auto" />
             <RowDefinition Height="Auto" />
             <RowDefinition Height="Auto" />
@@ -21,24 +22,27 @@
             <ColumnDefinition Width="Auto" />
         </Grid.ColumnDefinitions>
 
-        <TextBlock Grid.Row="0"
+        <TextBlock x:Name="SaveDirectoryLabel"
+                   Grid.Row="0"
                    Grid.Column="0"
                    Margin="0,0,12,12"
                    VerticalAlignment="Center"
-                   Text="保存先フォルダ" />
+                   Text="保存先フォルダー" />
         <TextBox x:Name="SaveDirectoryTextBox"
                  Grid.Row="0"
                  Grid.Column="1"
                  Margin="0,0,8,12"
                  VerticalContentAlignment="Center" />
-        <Button Grid.Row="0"
+        <Button x:Name="BrowseButton"
+                Grid.Row="0"
                 Grid.Column="2"
                 Width="72"
                 Margin="0,0,0,12"
                 Click="BrowseButton_OnClick"
                 Content="参照" />
 
-        <TextBlock Grid.Row="1"
+        <TextBlock x:Name="TriggerModeLabel"
+                   Grid.Row="1"
                    Grid.Column="0"
                    Margin="0,0,12,12"
                    VerticalAlignment="Center"
@@ -61,24 +65,32 @@
                   Grid.ColumnSpan="2"
                   Margin="0,0,0,8"
                   Content="失敗時に音を鳴らす" />
-        <CheckBox x:Name="AutoStartCheckBox"
+        <CheckBox x:Name="EnableVideoSaveCheckBox"
                   Grid.Row="4"
+                  Grid.Column="1"
+                  Grid.ColumnSpan="2"
+                  Margin="0,0,0,8"
+                  Content="動画の即保存を有効にする" />
+        <CheckBox x:Name="AutoStartCheckBox"
+                  Grid.Row="5"
                   Grid.Column="1"
                   Grid.ColumnSpan="2"
                   Margin="0,0,0,12"
                   VerticalAlignment="Top"
-                  Content="Windows サインイン時に DirectImageSaver を常駐起動する" />
+                  Content="Windows サインイン時に DirectImageSaver を自動起動する" />
 
-        <StackPanel Grid.Row="5"
+        <StackPanel Grid.Row="6"
                     Grid.Column="0"
                     Grid.ColumnSpan="3"
                     Orientation="Horizontal"
                     HorizontalAlignment="Right">
-            <Button Width="88"
+            <Button x:Name="SaveButton"
+                    Width="88"
                     Margin="0,0,8,0"
                     Click="SaveButton_OnClick"
                     Content="保存" />
-            <Button Width="88"
+            <Button x:Name="CancelButton"
+                    Width="88"
                     IsCancel="True"
                     Content="キャンセル" />
         </StackPanel>

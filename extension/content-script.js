@@ -2,15 +2,22 @@
   const DEFAULT_TRIGGER_MODE = "ShiftRightClick";
   const CONFIG_REFRESH_TTL_MS = 30_000;
   const CONTEXT_MENU_SUPPRESSION_MS = 1_500;
+  const SAVE_POPUP_DURATION_MS = 1_800;
+  const SAVE_POPUP_CONTAINER_ID = "direct-image-saver-popup";
 
-  let hoveredImage = null;
+  let hoveredMedia = null;
   let triggerMode = DEFAULT_TRIGGER_MODE;
-  let lastKnownGoodTriggerMode = DEFAULT_TRIGGER_MODE;
-  let lastTriggerModeRefreshAt = 0;
-  let triggerModeRefreshPromise = null;
+  let enableVideoSave = true;
+  let lastKnownGoodConfig = {
+    triggerMode: DEFAULT_TRIGGER_MODE,
+    enableVideoSave: true
+  };
+  let lastConfigRefreshAt = 0;
+  let configRefreshPromise = null;
   let suppressContextMenuUntil = 0;
+  let popupHideTimeoutId = 0;
 
-  void refreshTriggerMode();
+  void refreshRuntimeConfig();
 
   document.addEventListener("mousemove", onMouseMove, { capture: true, passive: true });
   document.addEventListener("mousedown", onMouseDown, true);
@@ -18,14 +25,14 @@
   document.addEventListener("keydown", onKeyDown, true);
   document.addEventListener("visibilitychange", () => {
     if (!document.hidden) {
-      void refreshTriggerMode();
+      void refreshRuntimeConfig();
     }
   });
 
   function onMouseMove(event) {
-    const candidate = resolveImageElement(event.target);
-    if (candidate !== hoveredImage) {
-      hoveredImage = candidate;
+    const candidate = resolveHoveredMedia(event.target);
+    if (!areSameHoveredMedia(candidate, hoveredMedia)) {
+      hoveredMedia = candidate;
     }
   }
 
@@ -34,10 +41,10 @@
       return;
     }
 
-    void ensureTriggerModeFresh();
+    void ensureRuntimeConfigFresh();
 
-    const image = resolveImageElement(event.target) || hoveredImage;
-    if (!image) {
+    const targetMedia = resolveHoveredMedia(event.target) || hoveredMedia;
+    if (!targetMedia || !isAllowedMediaType(targetMedia.type)) {
       return;
     }
 
@@ -48,7 +55,7 @@
     suppressContextMenuUntil = Date.now() + CONTEXT_MENU_SUPPRESSION_MS;
     event.preventDefault();
     event.stopPropagation();
-    void triggerSave(image);
+    void triggerSave(targetMedia);
   }
 
   function onContextMenu(event) {
@@ -61,16 +68,20 @@
   }
 
   function onKeyDown(event) {
-    void ensureTriggerModeFresh();
+    void ensureRuntimeConfigFresh();
 
-    if (getActiveTriggerMode() !== "CtrlShiftS" || !hoveredImage || event.repeat) {
+    if (getActiveTriggerMode() !== "CtrlShiftS" || !hoveredMedia || event.repeat) {
+      return;
+    }
+
+    if (!isAllowedMediaType(hoveredMedia.type)) {
       return;
     }
 
     if (event.ctrlKey && event.shiftKey && event.key.toLowerCase() === "s") {
       event.preventDefault();
       event.stopPropagation();
-      void triggerSave(hoveredImage);
+      void triggerSave(hoveredMedia);
     }
   }
 
@@ -91,73 +102,101 @@
   }
 
   function getActiveTriggerMode() {
-    return triggerMode || lastKnownGoodTriggerMode || DEFAULT_TRIGGER_MODE;
+    return triggerMode || lastKnownGoodConfig.triggerMode || DEFAULT_TRIGGER_MODE;
   }
 
-  function ensureTriggerModeFresh() {
-    if (lastTriggerModeRefreshAt + CONFIG_REFRESH_TTL_MS > Date.now()) {
-      return triggerModeRefreshPromise;
-    }
-
-    return refreshTriggerMode();
+  function isAllowedMediaType(type) {
+    return type === "image" || (type === "video" && enableVideoSave);
   }
 
-  async function refreshTriggerMode() {
-    if (triggerModeRefreshPromise) {
-      return triggerModeRefreshPromise;
+  function ensureRuntimeConfigFresh() {
+    if (lastConfigRefreshAt + CONFIG_REFRESH_TTL_MS > Date.now()) {
+      return configRefreshPromise;
     }
 
-    triggerModeRefreshPromise = refreshTriggerModeInternal();
+    return refreshRuntimeConfig();
+  }
+
+  async function refreshRuntimeConfig() {
+    if (configRefreshPromise) {
+      return configRefreshPromise;
+    }
+
+    configRefreshPromise = refreshRuntimeConfigInternal();
     try {
-      await triggerModeRefreshPromise;
+      await configRefreshPromise;
     } finally {
-      triggerModeRefreshPromise = null;
+      configRefreshPromise = null;
     }
   }
 
-  async function refreshTriggerModeInternal() {
+  async function refreshRuntimeConfigInternal() {
     try {
-      const response = await sendRuntimeMessage({ type: "getTriggerMode" });
-      if (response && response.triggerMode) {
-        triggerMode = response.triggerMode;
-        lastKnownGoodTriggerMode = response.triggerMode;
-        lastTriggerModeRefreshAt = Date.now();
+      const response = await sendRuntimeMessage({ type: "getRuntimeConfig" });
+      if (response && response.ok) {
+        triggerMode = response.triggerMode || DEFAULT_TRIGGER_MODE;
+        enableVideoSave = response.enableVideoSave !== false;
+        lastKnownGoodConfig = {
+          triggerMode,
+          enableVideoSave
+        };
+        lastConfigRefreshAt = Date.now();
       }
     } catch (error) {
-      console.warn("DirectImageSaver: failed to fetch trigger mode", error);
-      triggerMode = lastKnownGoodTriggerMode;
+      console.warn(`DirectImageSaver: failed to fetch runtime config. ${formatError(error)}`);
+      triggerMode = lastKnownGoodConfig.triggerMode;
+      enableVideoSave = lastKnownGoodConfig.enableVideoSave;
     }
   }
 
-  async function triggerSave(image) {
-    const payload = buildPayload(image);
+  async function triggerSave(hoveredEntry) {
+    const payload = buildPayload(hoveredEntry);
     if (!payload) {
-      console.warn("DirectImageSaver: no image payload could be built.");
+      console.info(`DirectImageSaver: skipped unsupported hovered target. ${describeHoveredEntry(hoveredEntry)}`);
       return;
     }
 
     try {
       const response = await sendRuntimeMessage({
-        type: "saveHoveredImage",
+        type: "saveHoveredMedia",
         payload
       });
 
-      if (!response || !response.ok) {
-        console.warn("DirectImageSaver: save failed", response);
+      if (response && response.ok) {
+        showSavePopup(response);
+      } else {
+        console.warn(`DirectImageSaver: save failed. ${formatNativeResponse(response)}`);
       }
     } catch (error) {
-      console.warn("DirectImageSaver: failed to send save request", error);
+      console.warn(`DirectImageSaver: failed to send save request. ${formatError(error)}`);
     }
   }
 
-  function buildPayload(image) {
-    const imageUrl = resolveImageUrl(image);
-    if (!imageUrl) {
+  function buildPayload(hoveredEntry) {
+    if (!hoveredEntry || !hoveredEntry.element) {
+      return null;
+    }
+
+    if (hoveredEntry.type === "image") {
+      return buildImagePayload(hoveredEntry.element);
+    }
+
+    if (hoveredEntry.type === "video") {
+      return buildVideoPayload(hoveredEntry.element);
+    }
+
+    return null;
+  }
+
+  function buildImagePayload(image) {
+    const mediaUrl = resolveImageUrl(image);
+    if (!mediaUrl) {
       return null;
     }
 
     return {
-      imageUrl,
+      mediaType: "Image",
+      mediaUrl,
       pageUrl: window.location.href,
       pageTitle: document.title || "",
       host: window.location.hostname || "",
@@ -167,6 +206,29 @@
       userAgent: navigator.userAgent,
       referrer: window.location.href || document.referrer || undefined,
       timestamp: new Date().toISOString()
+    };
+  }
+
+  function buildVideoPayload(video) {
+    const mediaUrl = resolveVideoUrl(video);
+    if (!mediaUrl || mediaUrl.startsWith("blob:")) {
+      return null;
+    }
+
+    const duration = Number.isFinite(video.duration) && video.duration > 0 ? video.duration : undefined;
+
+    return {
+      mediaType: "Video",
+      mediaUrl,
+      pageUrl: window.location.href,
+      pageTitle: document.title || "",
+      host: window.location.hostname || "",
+      userAgent: navigator.userAgent,
+      referrer: window.location.href || document.referrer || undefined,
+      timestamp: new Date().toISOString(),
+      durationSeconds: duration,
+      videoWidth: video.videoWidth || undefined,
+      videoHeight: video.videoHeight || undefined
     };
   }
 
@@ -192,13 +254,178 @@
     return candidate || null;
   }
 
-  function resolveImageElement(target) {
+  function resolveVideoUrl(video) {
+    if (typeof video.currentSrc === "string" && video.currentSrc.trim()) {
+      return video.currentSrc.trim();
+    }
+
+    if (typeof video.src === "string" && video.src.trim()) {
+      return video.src.trim();
+    }
+
+    const source = Array.from(video.querySelectorAll("source"))
+      .map((element) => element.getAttribute("src"))
+      .find((value) => typeof value === "string" && value.trim());
+
+    return source ? source.trim() : null;
+  }
+
+  function resolveHoveredMedia(target) {
     if (!(target instanceof Element)) {
       return null;
     }
 
-    const match = target.closest("img");
-    return match instanceof HTMLImageElement ? match : null;
+    const mediaElement = target.closest("img,video");
+    if (mediaElement instanceof HTMLImageElement) {
+      return { type: "image", element: mediaElement };
+    }
+
+    if (mediaElement instanceof HTMLVideoElement) {
+      return { type: "video", element: mediaElement };
+    }
+
+    return null;
+  }
+
+  function areSameHoveredMedia(left, right) {
+    return !!left && !!right && left.type === right.type && left.element === right.element;
+  }
+
+  function describeHoveredEntry(hoveredEntry) {
+    if (!hoveredEntry || !hoveredEntry.type) {
+      return "No hovered media was available.";
+    }
+
+    if (hoveredEntry.type === "video") {
+      return "Video saving only supports direct http/https URLs. blob: and MediaSource targets are skipped.";
+    }
+
+    return "No saveable media URL was found on the hovered element.";
+  }
+
+  function formatNativeResponse(response) {
+    if (!response || typeof response !== "object") {
+      return "No response details were returned.";
+    }
+
+    const errorCode = typeof response.errorCode === "string" && response.errorCode
+      ? response.errorCode
+      : "UnknownError";
+    const message = typeof response.message === "string" && response.message
+      ? response.message
+      : "No error message was returned.";
+
+    return `${errorCode}: ${message}`;
+  }
+
+  function formatError(error) {
+    if (error instanceof Error) {
+      return error.message;
+    }
+
+    return typeof error === "string" ? error : "Unknown error";
+  }
+
+  function showSavePopup(response) {
+    const popup = ensureSavePopupElement();
+    const titleElement = popup.querySelector("[data-role='title']");
+    const fileNameElement = popup.querySelector("[data-role='file-name']");
+    const fileName = getPopupFileName(response);
+
+    if (titleElement) {
+      titleElement.textContent = "保存しました";
+    }
+
+    if (fileNameElement) {
+      fileNameElement.textContent = fileName || "";
+      fileNameElement.style.display = fileName ? "block" : "none";
+    }
+
+    popup.dataset.state = "visible";
+
+    if (popupHideTimeoutId) {
+      window.clearTimeout(popupHideTimeoutId);
+    }
+
+    popupHideTimeoutId = window.setTimeout(() => {
+      popup.dataset.state = "hidden";
+      popupHideTimeoutId = 0;
+    }, SAVE_POPUP_DURATION_MS);
+  }
+
+  function getPopupFileName(response) {
+    if (!response || typeof response !== "object") {
+      return "";
+    }
+
+    if (typeof response.fileName === "string" && response.fileName.trim()) {
+      return response.fileName.trim();
+    }
+
+    if (typeof response.savedPath === "string" && response.savedPath.trim()) {
+      const parts = response.savedPath.trim().split(/[\\/]/);
+      return parts[parts.length - 1] || "";
+    }
+
+    return "";
+  }
+
+  function ensureSavePopupElement() {
+    const existing = document.getElementById(SAVE_POPUP_CONTAINER_ID);
+    if (existing) {
+      return existing;
+    }
+
+    const popup = document.createElement("div");
+    popup.id = SAVE_POPUP_CONTAINER_ID;
+    popup.dataset.state = "hidden";
+    popup.setAttribute("aria-live", "polite");
+    popup.style.position = "fixed";
+    popup.style.right = "18px";
+    popup.style.bottom = "18px";
+    popup.style.zIndex = "2147483647";
+    popup.style.pointerEvents = "none";
+    popup.style.minWidth = "220px";
+    popup.style.maxWidth = "320px";
+    popup.style.padding = "10px 12px";
+    popup.style.borderRadius = "12px";
+    popup.style.background = "rgba(16, 18, 24, 0.78)";
+    popup.style.backdropFilter = "blur(10px)";
+    popup.style.boxShadow = "0 10px 30px rgba(0, 0, 0, 0.22)";
+    popup.style.color = "#f5f7fb";
+    popup.style.fontFamily = "'Segoe UI', 'Yu Gothic UI', sans-serif";
+    popup.style.fontSize = "12px";
+    popup.style.lineHeight = "1.4";
+    popup.style.opacity = "0";
+    popup.style.transform = "translateY(8px)";
+    popup.style.transition = "opacity 160ms ease, transform 160ms ease";
+    popup.style.border = "1px solid rgba(255, 255, 255, 0.08)";
+
+    const title = document.createElement("div");
+    title.dataset.role = "title";
+    title.style.fontWeight = "600";
+    title.style.letterSpacing = "0.01em";
+    title.textContent = "保存しました";
+
+    const fileName = document.createElement("div");
+    fileName.dataset.role = "file-name";
+    fileName.style.marginTop = "3px";
+    fileName.style.opacity = "0.88";
+    fileName.style.wordBreak = "break-word";
+
+    popup.appendChild(title);
+    popup.appendChild(fileName);
+
+    const observer = new MutationObserver(() => {
+      const isVisible = popup.dataset.state === "visible";
+      popup.style.opacity = isVisible ? "1" : "0";
+      popup.style.transform = isVisible ? "translateY(0)" : "translateY(8px)";
+    });
+    observer.observe(popup, { attributes: true, attributeFilter: ["data-state"] });
+
+    const root = document.documentElement || document.body;
+    root.appendChild(popup);
+    return popup;
   }
 
   function sendRuntimeMessage(message) {

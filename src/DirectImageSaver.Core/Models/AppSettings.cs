@@ -12,6 +12,8 @@ public sealed class AppSettings
 
     public bool AutoStart { get; set; } = true;
 
+    public bool EnableVideoSave { get; set; } = true;
+
     public string FilenamePattern { get; set; } = "{site}_{yyyyMMdd_HHmmss}_{seq}";
 
     public List<string> SupportedBrowsers { get; set; } = ["chrome", "edge"];
@@ -28,6 +30,7 @@ public sealed class AppSettings
             SuccessSoundEnabled = SuccessSoundEnabled,
             ErrorSoundEnabled = ErrorSoundEnabled,
             AutoStart = AutoStart,
+            EnableVideoSave = EnableVideoSave,
             FilenamePattern = FilenamePattern,
             SupportedBrowsers = new List<string>(SupportedBrowsers),
             LogLevel = LogLevel

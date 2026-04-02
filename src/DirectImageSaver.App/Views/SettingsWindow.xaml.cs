@@ -27,10 +27,20 @@ public partial class SettingsWindow : Window
             .ToList();
         TriggerModeComboBox.DisplayMemberPath = nameof(TriggerModeOption.Label);
         TriggerModeComboBox.SelectedValuePath = nameof(TriggerModeOption.Value);
+        SaveDirectoryLabel.Text = AppText.LabelSaveFolder;
+        BrowseButton.Content = AppText.ButtonBrowse;
+        TriggerModeLabel.Text = AppText.LabelTrigger;
+        SuccessSoundCheckBox.Content = AppText.CheckboxSuccessSound;
+        ErrorSoundCheckBox.Content = AppText.CheckboxErrorSound;
+        EnableVideoSaveCheckBox.Content = AppText.CheckboxEnableVideoSave;
+        AutoStartCheckBox.Content = AppText.CheckboxAutoStart;
+        SaveButton.Content = AppText.ButtonSave;
+        CancelButton.Content = AppText.ButtonCancel;
         SaveDirectoryTextBox.Text = settings.SaveDirectory;
         TriggerModeComboBox.SelectedValue = settings.TriggerMode;
         SuccessSoundCheckBox.IsChecked = settings.SuccessSoundEnabled;
         ErrorSoundCheckBox.IsChecked = settings.ErrorSoundEnabled;
+        EnableVideoSaveCheckBox.IsChecked = settings.EnableVideoSave;
         AutoStartCheckBox.IsChecked = settings.AutoStart;
         ResultSettings = settings.Clone();
     }
@@ -51,7 +61,7 @@ public partial class SettingsWindow : Window
         {
             SaveDirectoryTextBox.Text = dialog.SelectedPath;
         }
-        }
+    }
 
     private void SaveButton_OnClick(object sender, RoutedEventArgs e)
     {
@@ -69,6 +79,7 @@ public partial class SettingsWindow : Window
                 : TriggerMode.ShiftRightClick,
             SuccessSoundEnabled = SuccessSoundCheckBox.IsChecked == true,
             ErrorSoundEnabled = ErrorSoundCheckBox.IsChecked == true,
+            EnableVideoSave = EnableVideoSaveCheckBox.IsChecked != false,
             AutoStart = AutoStartCheckBox.IsChecked == true,
             FilenamePattern = ResultSettings.FilenamePattern,
             SupportedBrowsers = new List<string>(ResultSettings.SupportedBrowsers),

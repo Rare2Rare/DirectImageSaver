@@ -21,16 +21,16 @@ public sealed class DownloadService
     }
 
     public async Task<DownloadResult> DownloadAsync(
-        HoveredImagePayload payload,
+        HoveredMediaPayload payload,
         string tempFilePath,
         CancellationToken cancellationToken)
     {
         try
         {
-            using var request = new HttpRequestMessage(HttpMethod.Get, payload.ImageUrl);
+            using var request = new HttpRequestMessage(HttpMethod.Get, payload.MediaUrl);
             request.Headers.TryAddWithoutValidation(
                 "Accept",
-                "image/avif,image/webp,image/apng,image/svg+xml,image/*,*/*;q=0.8");
+                GetAcceptHeader(payload.MediaType));
 
             if (!string.IsNullOrWhiteSpace(payload.UserAgent))
             {
@@ -85,7 +85,12 @@ public sealed class DownloadService
         }
         catch (HttpRequestException exception)
         {
-            throw new SaveRequestException(SaveErrorCode.DownloadFailed, "The image download failed.", exception);
+            throw new SaveRequestException(SaveErrorCode.DownloadFailed, "The media download failed.", exception);
         }
     }
+
+    private static string GetAcceptHeader(MediaType mediaType) =>
+        mediaType == MediaType.Video
+            ? "video/webm,video/mp4,video/ogg,video/*,*/*;q=0.8"
+            : "image/avif,image/webp,image/apng,image/svg+xml,image/*,*/*;q=0.8";
 }

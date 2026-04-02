@@ -26,7 +26,7 @@ public sealed class SaveRequestHandler
         _logService = logService;
     }
 
-    public async Task<NativeResponse> HandleSaveAsync(HoveredImagePayload? payload, CancellationToken cancellationToken)
+    public async Task<NativeResponse> HandleSaveAsync(HoveredMediaPayload? payload, CancellationToken cancellationToken)
     {
         if (payload is null)
         {
@@ -36,7 +36,7 @@ public sealed class SaveRequestHandler
             return NativeResponse.Error(SaveErrorCode.InvalidPayload, "The save payload was empty.");
         }
 
-        _logService.LogInfo("SaveImage", "Received", "Save request reached save handler.", payload);
+        _logService.LogInfo("SaveMedia", "Received", "Save request reached save handler.", payload);
 
         try
         {
@@ -66,12 +66,19 @@ public sealed class SaveRequestHandler
                     "The save directory is not configured.");
             }
 
+            if (payload.MediaType == MediaType.Video && !settings.EnableVideoSave)
+            {
+                throw new SaveRequestException(
+                    SaveErrorCode.InvalidPayload,
+                    "Video saving is disabled in the current settings.");
+            }
+
             Directory.CreateDirectory(settings.SaveDirectory);
             tempFilePath = Path.Combine(settings.SaveDirectory, $".directimagesaver-{Guid.NewGuid():N}.tmp");
-            _logService.LogInfo("SaveImage", "DownloadStarted", "Downloading image to a temporary file.", payload, tempFilePath);
+            _logService.LogInfo("SaveMedia", "DownloadStarted", "Downloading media to a temporary file.", payload, tempFilePath);
 
             var downloadResult = await _downloadService.DownloadAsync(payload, tempFilePath, cancellationToken).ConfigureAwait(false);
-            var extension = _filenameService.ResolveExtension(downloadResult.ContentType, payload.ImageUrl);
+            var extension = _filenameService.ResolveExtension(downloadResult.ContentType, payload.MediaUrl);
             var timestamp = ParseTimestamp(payload.Timestamp);
             finalPath = _filenameService.GetUniqueFilePath(
                 settings.SaveDirectory,
@@ -124,7 +131,7 @@ public sealed class SaveRequestHandler
             _audioService.PlayFailureIfEnabled(settings);
             _logService.LogSaveFailure(payload, finalPath, SaveErrorCode.UnhandledException, exception.Message, exception);
             CleanupTempFile(tempFilePath);
-            return NativeResponse.Error(SaveErrorCode.UnhandledException, "An unexpected error occurred while saving the image.");
+            return NativeResponse.Error(SaveErrorCode.UnhandledException, "An unexpected error occurred while saving the media.");
         }
         finally
         {
@@ -132,17 +139,17 @@ public sealed class SaveRequestHandler
         }
     }
 
-    private static void ValidatePayload(HoveredImagePayload payload)
+    private static void ValidatePayload(HoveredMediaPayload payload)
     {
-        if (string.IsNullOrWhiteSpace(payload.ImageUrl))
+        if (string.IsNullOrWhiteSpace(payload.MediaUrl))
         {
-            throw new SaveRequestException(SaveErrorCode.ImageUrlMissing, "No image URL was detected.");
+            throw new SaveRequestException(SaveErrorCode.ImageUrlMissing, "No media URL was detected.");
         }
 
-        if (!Uri.TryCreate(payload.ImageUrl, UriKind.Absolute, out var imageUri)
+        if (!Uri.TryCreate(payload.MediaUrl, UriKind.Absolute, out var imageUri)
             || (imageUri.Scheme != Uri.UriSchemeHttp && imageUri.Scheme != Uri.UriSchemeHttps))
         {
-            throw new SaveRequestException(SaveErrorCode.InvalidPayload, "The image URL is invalid or unsupported.");
+            throw new SaveRequestException(SaveErrorCode.InvalidPayload, "The media URL is invalid or unsupported.");
         }
     }
 

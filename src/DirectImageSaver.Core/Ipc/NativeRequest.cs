@@ -6,5 +6,5 @@ public sealed class NativeRequest
 {
     public string Type { get; set; } = string.Empty;
 
-    public HoveredImagePayload? Payload { get; set; }
+    public HoveredMediaPayload? Payload { get; set; }
 }

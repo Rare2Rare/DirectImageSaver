@@ -13,7 +13,12 @@ public sealed class FilenameService
         ["image/webp"] = ".webp",
         ["image/avif"] = ".avif",
         ["image/bmp"] = ".bmp",
-        ["image/svg+xml"] = ".svg"
+        ["image/svg+xml"] = ".svg",
+        ["video/mp4"] = ".mp4",
+        ["video/webm"] = ".webm",
+        ["video/ogg"] = ".ogv",
+        ["video/quicktime"] = ".mov",
+        ["video/x-m4v"] = ".m4v"
     };
 
     private static readonly HashSet<string> KnownExtensions = new(StringComparer.OrdinalIgnoreCase)
@@ -25,14 +30,19 @@ public sealed class FilenameService
         ".webp",
         ".avif",
         ".bmp",
-        ".svg"
+        ".svg",
+        ".mp4",
+        ".webm",
+        ".ogv",
+        ".mov",
+        ".m4v"
     };
 
     public string NormalizeSite(string? host)
     {
         if (string.IsNullOrWhiteSpace(host))
         {
-            return "image";
+            return "media";
         }
 
         var normalized = host.Trim().ToLowerInvariant();
@@ -53,10 +63,10 @@ public sealed class FilenameService
         }
 
         normalized = normalized.Replace(".", "_", StringComparison.Ordinal);
-        return string.IsNullOrWhiteSpace(normalized) ? "image" : normalized;
+        return string.IsNullOrWhiteSpace(normalized) ? "media" : normalized;
     }
 
-    public string ResolveExtension(string? contentType, string? imageUrl)
+    public string ResolveExtension(string? contentType, string? mediaUrl)
     {
         if (!string.IsNullOrWhiteSpace(contentType))
         {
@@ -67,7 +77,7 @@ public sealed class FilenameService
             }
         }
 
-        if (Uri.TryCreate(imageUrl, UriKind.Absolute, out var imageUri))
+        if (Uri.TryCreate(mediaUrl, UriKind.Absolute, out var imageUri))
         {
             var extension = Path.GetExtension(imageUri.AbsolutePath);
             if (!string.IsNullOrWhiteSpace(extension))

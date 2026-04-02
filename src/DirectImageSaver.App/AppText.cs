@@ -18,6 +18,7 @@ public static class AppText
     public const string ButtonCancel = "キャンセル";
     public const string CheckboxSuccessSound = "成功時に音を鳴らす";
     public const string CheckboxErrorSound = "失敗時に音を鳴らす";
+    public const string CheckboxEnableVideoSave = "動画の即保存を有効にする";
     public const string CheckboxAutoStart = "Windows サインイン時に DirectImageSaver を自動起動する";
     public const string ErrorSelectSaveFolder = "保存先フォルダーを選択してください。";
     public const string ErrorApplySettings = "設定を保存できませんでした。自動起動設定または保存先フォルダーの確認に失敗しました。詳細はログを確認してください。";

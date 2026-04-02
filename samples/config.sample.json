@@ -4,6 +4,7 @@
   "successSoundEnabled": true,
   "errorSoundEnabled": true,
   "autoStart": true,
+  "enableVideoSave": true,
   "filenamePattern": "{site}_{yyyyMMdd_HHmmss}_{seq}",
   "supportedBrowsers": [
     "chrome",

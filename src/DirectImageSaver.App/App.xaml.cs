@@ -266,6 +266,8 @@ public partial class App : System.Windows.Application
 
         switch (request.Type)
         {
+            // saveImage is retained for compatibility with older native-host callers.
+            case "saveMedia":
             case "saveImage":
                 return _saveRequestHandler.HandleSaveAsync(request.Payload, cancellationToken);
             case "getConfig":

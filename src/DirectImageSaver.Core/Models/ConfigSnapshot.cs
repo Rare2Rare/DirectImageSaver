@@ -8,6 +8,8 @@ public sealed class ConfigSnapshot
 
     public bool ErrorSoundEnabled { get; init; }
 
+    public bool EnableVideoSave { get; init; }
+
     public IReadOnlyList<string> SupportedBrowsers { get; init; } = Array.Empty<string>();
 
     public static ConfigSnapshot FromSettings(AppSettings settings) =>
@@ -16,6 +18,7 @@ public sealed class ConfigSnapshot
             TriggerMode = settings.TriggerMode,
             SuccessSoundEnabled = settings.SuccessSoundEnabled,
             ErrorSoundEnabled = settings.ErrorSoundEnabled,
+            EnableVideoSave = settings.EnableVideoSave,
             SupportedBrowsers = settings.SupportedBrowsers.ToArray()
         };
 }

@@ -39,6 +39,12 @@ public sealed class FilenameServiceTests
     }
 
     [Fact]
+    public void ResolveExtension_ShouldSupportVideoContentType()
+    {
+        _service.ResolveExtension("video/mp4", "https://example.com/clip.webm").Should().Be(".mp4");
+    }
+
+    [Fact]
     public void GetUniqueFilePath_ShouldIncrementSequenceForCollisions()
     {
         var directory = Directory.CreateTempSubdirectory().FullName;
