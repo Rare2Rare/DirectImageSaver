@@ -2,9 +2,18 @@
 
 ブラウザ上の画像や直リンク動画を、ホットキー一発で指定フォルダーに保存する Windows 常駐アプリ + Chrome / Edge 拡張。
 
+## ダウンロード
+
+| ファイル | 説明 |
+|---------|------|
+| [DirectImageSaver-Setup.exe](https://github.com/Rare2Rare/DirectImageSaver/releases/latest/download/DirectImageSaver-Setup.exe) | インストーラー |
+| [DirectImageSaver.zip](https://github.com/Rare2Rare/DirectImageSaver/releases/latest/download/DirectImageSaver.zip) | ZIP（手動インストール用） |
+
+> 最新リリース: [Releases](https://github.com/Rare2Rare/DirectImageSaver/releases)
+
 ## インストール
 
-`DirectImageSaver-Setup.exe` を実行する。インストール先は自由に変更できる。
+ダウンロードした `DirectImageSaver-Setup.exe` を実行する。インストール先は自由に変更できる。
 
 セットアップ完了後、「拡張機能をセットアップ」画面が開く。
 
