@@ -8,7 +8,8 @@ $installRoot = Join-Path $env:LOCALAPPDATA "DirectImageSaver\current"
 $runKey = "HKCU:\Software\Microsoft\Windows\CurrentVersion\Run"
 $registryKeys = @(
     "HKCU:\Software\Google\Chrome\NativeMessagingHosts\com.directimagesaver.host",
-    "HKCU:\Software\Microsoft\Edge\NativeMessagingHosts\com.directimagesaver.host"
+    "HKCU:\Software\Microsoft\Edge\NativeMessagingHosts\com.directimagesaver.host",
+    "HKCU:\Software\Mozilla\NativeMessagingHosts\com.directimagesaver.host"
 )
 
 foreach ($registryKey in $registryKeys) {

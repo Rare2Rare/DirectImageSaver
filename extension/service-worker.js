@@ -1,3 +1,9 @@
+// Load polyfill in Chrome service worker context.
+// In Firefox the polyfill is loaded via background.scripts in the manifest.
+if (typeof importScripts === "function" && typeof browser === "undefined") {
+  importScripts("vendor/browser-polyfill.min.js");
+}
+
 const HOST_NAME = "com.directimagesaver.host";
 const DEFAULT_TRIGGER_MODE = "ShiftRightClick";
 const CONFIG_CACHE_TTL_MS = 30_000;
@@ -8,9 +14,8 @@ let cachedConfig = {
 };
 let cachedConfigExpiresAt = 0;
 
-chrome.runtime.onMessage.addListener((message, _sender, sendResponse) => {
-  void handleMessage(message).then(sendResponse);
-  return true;
+browser.runtime.onMessage.addListener((message, _sender) => {
+  return handleMessage(message);
 });
 
 async function handleMessage(message) {
@@ -78,27 +83,23 @@ async function getConfig() {
   return cachedConfig;
 }
 
-function sendNativeMessage(request) {
-  return new Promise((resolve) => {
-    chrome.runtime.sendNativeMessage(HOST_NAME, request, (response) => {
-      const runtimeError = chrome.runtime.lastError;
-      if (runtimeError) {
-        console.warn(`DirectImageSaver: native host unavailable. ${runtimeError.message}`);
-        resolve({
-          ok: false,
-          errorCode: "NativeHostUnavailable",
-          message: runtimeError.message
-        });
-        return;
-      }
-
-      resolve(response || {
-        ok: false,
-        errorCode: "EmptyNativeResponse",
-        message: "The native host returned no response."
-      });
-    });
-  });
+async function sendNativeMessage(request) {
+  try {
+    const response = await browser.runtime.sendNativeMessage(HOST_NAME, request);
+    return response || {
+      ok: false,
+      errorCode: "EmptyNativeResponse",
+      message: "The native host returned no response."
+    };
+  } catch (error) {
+    const message = error && error.message ? error.message : "Unknown native messaging error.";
+    console.warn(`DirectImageSaver: native host unavailable. ${message}`);
+    return {
+      ok: false,
+      errorCode: "NativeHostUnavailable",
+      message
+    };
+  }
 }
 
 function formatNativeResponse(response) {

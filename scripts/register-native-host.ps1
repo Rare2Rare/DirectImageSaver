@@ -1,18 +1,34 @@
 param(
-    [Parameter(Mandatory = $true)]
-    [string]$ManifestPath
+    [string]$ChromiumManifestPath,
+    [string]$FirefoxManifestPath,
+    [string]$ManifestPath  # Backward-compat alias for $ChromiumManifestPath
 )
 
 $ErrorActionPreference = "Stop"
 
-$registryKeys = @(
-    "HKCU:\Software\Google\Chrome\NativeMessagingHosts\com.directimagesaver.host",
-    "HKCU:\Software\Microsoft\Edge\NativeMessagingHosts\com.directimagesaver.host"
-)
-
-foreach ($registryKey in $registryKeys) {
-    New-Item -Path $registryKey -Force | Out-Null
-    Set-Item -Path $registryKey -Value $ManifestPath
+if (-not $ChromiumManifestPath -and $ManifestPath) {
+    $ChromiumManifestPath = $ManifestPath
 }
 
-Write-Host "Registered native host manifest at $ManifestPath"
+if ($ChromiumManifestPath) {
+    $chromiumKeys = @(
+        "HKCU:\Software\Google\Chrome\NativeMessagingHosts\com.directimagesaver.host",
+        "HKCU:\Software\Microsoft\Edge\NativeMessagingHosts\com.directimagesaver.host"
+    )
+    foreach ($key in $chromiumKeys) {
+        New-Item -Path $key -Force | Out-Null
+        Set-Item -Path $key -Value $ChromiumManifestPath
+    }
+    Write-Host "Registered Chrome/Edge native host manifest at $ChromiumManifestPath"
+}
+
+if ($FirefoxManifestPath) {
+    $firefoxKey = "HKCU:\Software\Mozilla\NativeMessagingHosts\com.directimagesaver.host"
+    New-Item -Path $firefoxKey -Force | Out-Null
+    Set-Item -Path $firefoxKey -Value $FirefoxManifestPath
+    Write-Host "Registered Firefox native host manifest at $FirefoxManifestPath"
+}
+
+if (-not $ChromiumManifestPath -and -not $FirefoxManifestPath) {
+    throw "At least one of -ChromiumManifestPath or -FirefoxManifestPath must be specified."
+}

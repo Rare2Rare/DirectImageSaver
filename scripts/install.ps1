@@ -13,9 +13,11 @@ $appTarget = Join-Path $installRoot "app"
 $nativeHostTarget = Join-Path $installRoot "nativehost"
 $extensionTarget = Join-Path $installRoot "extension"
 $hostManifestPath = Join-Path $nativeHostTarget "com.directimagesaver.host.json"
+$firefoxHostManifestPath = Join-Path $nativeHostTarget "com.directimagesaver.host.firefox.json"
 $nativeHostPath = Join-Path $nativeHostTarget "DirectImageSaver.NativeHost.exe"
 $trayAppPath = Join-Path $appTarget "DirectImageSaver.App.exe"
 $extensionId = "kblklkfadcpplofmmfkkplglcmomicmm"
+$firefoxExtensionId = "directimagesaver@rare2rare"
 
 $distributionMode = (Test-Path (Join-Path $distributionRoot "app")) `
     -and (Test-Path (Join-Path $distributionRoot "nativehost")) `
@@ -51,7 +53,21 @@ $hostManifest = @{
 
 $hostManifest | ConvertTo-Json -Depth 4 | Set-Content -Path $hostManifestPath -Encoding utf8
 
-& (Join-Path $PSScriptRoot "register-native-host.ps1") -ManifestPath $hostManifestPath
+$firefoxHostManifest = @{
+    name = "com.directimagesaver.host"
+    description = "DirectImageSaver Native Messaging Host"
+    path = $nativeHostPath
+    type = "stdio"
+    allowed_extensions = @(
+        $firefoxExtensionId
+    )
+}
+
+$firefoxHostManifest | ConvertTo-Json -Depth 4 | Set-Content -Path $firefoxHostManifestPath -Encoding utf8
+
+& (Join-Path $PSScriptRoot "register-native-host.ps1") `
+    -ChromiumManifestPath $hostManifestPath `
+    -FirefoxManifestPath $firefoxHostManifestPath
 
 $runKey = "HKCU:\Software\Microsoft\Windows\CurrentVersion\Run"
 New-Item -Path $runKey -Force | Out-Null

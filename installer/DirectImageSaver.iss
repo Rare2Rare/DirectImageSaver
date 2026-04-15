@@ -14,6 +14,7 @@
 #define MyAppPublisher "Rare2Rare"
 #define MyAppExeName "DirectImageSaver.App.exe"
 #define MyExtensionId "kblklkfadcpplofmmfkkplglcmomicmm"
+#define MyFirefoxExtensionId "directimagesaver@rare2rare"
 #define MyHostName "com.directimagesaver.host"
 
 [Setup]
@@ -52,6 +53,7 @@ Source: "{#PayloadDir}\QUICKSTART.ja.md"; DestDir: "{app}"; Flags: ignoreversion
 [Registry]
 Root: HKCU; Subkey: "Software\Google\Chrome\NativeMessagingHosts\{#MyHostName}"; ValueType: string; ValueName: ""; ValueData: "{app}\nativehost\{#MyHostName}.json"; Flags: uninsdeletekey
 Root: HKCU; Subkey: "Software\Microsoft\Edge\NativeMessagingHosts\{#MyHostName}"; ValueType: string; ValueName: ""; ValueData: "{app}\nativehost\{#MyHostName}.json"; Flags: uninsdeletekey
+Root: HKCU; Subkey: "Software\Mozilla\NativeMessagingHosts\{#MyHostName}"; ValueType: string; ValueName: ""; ValueData: "{app}\nativehost\{#MyHostName}.firefox.json"; Flags: uninsdeletekey
 Root: HKCU; Subkey: "Software\Microsoft\Windows\CurrentVersion\Run"; ValueType: string; ValueName: "DirectImageSaver"; ValueData: """{app}\app\{#MyAppExeName}"" --background"; Flags: uninsdeletevalue
 
 [Run]
@@ -87,10 +89,37 @@ begin
   SaveStringToFile(ManifestPath, ManifestJson, False);
 end;
 
+procedure WriteFirefoxNativeHostManifest();
+var
+  ManifestPath: string;
+  NativeHostPath: string;
+  EscapedNativeHostPath: string;
+  ManifestJson: string;
+begin
+  ManifestPath := ExpandConstant('{app}\nativehost\{#MyHostName}.firefox.json');
+  NativeHostPath := ExpandConstant('{app}\nativehost\DirectImageSaver.NativeHost.exe');
+  EscapedNativeHostPath := NativeHostPath;
+  StringChangeEx(EscapedNativeHostPath, '\', '\\', True);
+
+  ManifestJson :=
+    '{'#13#10 +
+    '  "name": "{#MyHostName}",'#13#10 +
+    '  "description": "DirectImageSaver Native Messaging Host",'#13#10 +
+    '  "path": "' + EscapedNativeHostPath + '",'#13#10 +
+    '  "type": "stdio",'#13#10 +
+    '  "allowed_extensions": ['#13#10 +
+    '    "{#MyFirefoxExtensionId}"'#13#10 +
+    '  ]'#13#10 +
+    '}'#13#10;
+
+  SaveStringToFile(ManifestPath, ManifestJson, False);
+end;
+
 procedure CurStepChanged(CurStep: TSetupStep);
 begin
   if CurStep = ssPostInstall then
   begin
     WriteNativeHostManifest();
+    WriteFirefoxNativeHostManifest();
   end;
 end;

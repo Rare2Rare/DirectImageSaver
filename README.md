@@ -1,13 +1,14 @@
 # DirectImageSaver
 
-ブラウザ上の画像や直リンク動画を、ホットキー一発で指定フォルダーに保存する Windows 常駐アプリ + Chrome / Edge 拡張。
+ブラウザ上の画像や直リンク動画を、ホットキー一発で指定フォルダーに保存する Windows 常駐アプリ + Chrome / Edge / Firefox 拡張。
 
 ## ダウンロード
 
 | ファイル | 説明 |
 |---------|------|
-| [DirectImageSaver-Setup.exe](https://github.com/Rare2Rare/DirectImageSaver/releases/latest/download/DirectImageSaver-Setup.exe) | インストーラー |
+| [DirectImageSaver-Setup.exe](https://github.com/Rare2Rare/DirectImageSaver/releases/latest/download/DirectImageSaver-Setup.exe) | インストーラー（Windows 本体） |
 | [DirectImageSaver.zip](https://github.com/Rare2Rare/DirectImageSaver/releases/latest/download/DirectImageSaver.zip) | ZIP（手動インストール用） |
+| [DirectImageSaver.xpi](https://github.com/Rare2Rare/DirectImageSaver/releases/latest/download/DirectImageSaver.xpi) | Firefox 用拡張機能 |
 
 > 最新リリース: [Releases](https://github.com/Rare2Rare/DirectImageSaver/releases)
 
@@ -34,6 +35,16 @@
 
 アドレスバーに `chrome://extensions` / `edge://extensions` と入力しても設定できる。
 
+### Firefox に入れる
+
+Firefox は自動読み込みに対応していないため、xpi ファイルを手動で導入する。
+
+1. 上の表から `DirectImageSaver.xpi` をダウンロード
+2. Firefox のウィンドウに xpi をドラッグ&ドロップ
+3. 表示されたダイアログで「追加」をクリック
+
+Release / Beta は AMO 署名済みの xpi が必要。Developer Edition / Nightly / ESR は `about:config` で `xpinstall.signatures.required` を `false` にすれば未署名でも導入できる。
+
 ### 使う
 
 画像の上で `Shift + 右クリック`。
@@ -44,7 +55,7 @@
 
 ## 対応
 
-- Windows / Chrome / Edge
+- Windows / Chrome / Edge / Firefox
 - X (Twitter) Web、Chrome / Edge の X PWA
 - `<img>` 要素
 - `<video>` / `<source>` の http/https 直リンク動画
@@ -98,8 +109,8 @@
 
 ### 拡張の管理画面に行けない
 
-- アドレスバーに `chrome://extensions` / `edge://extensions` を入力
-- または Chrome 右上「︙」→ 拡張機能 → 拡張機能を管理
+- Chrome / Edge: アドレスバーに `chrome://extensions` / `edge://extensions` を入力。または右上「︙」「…」→ 拡張機能
+- Firefox: アドレスバーに `about:addons` を入力。または右上「≡」→ アドオンとテーマ
 
 ### ログ・設定
 
@@ -114,7 +125,9 @@
 .\scripts\publish.ps1
 ```
 
-`artifacts\publish\`、`artifacts\DirectImageSaver.zip`、`artifacts\DirectImageSaver-Setup.exe` が生成される。
+`artifacts\publish\`、`artifacts\DirectImageSaver.zip`、`artifacts\DirectImageSaver-Setup.exe`、`artifacts\DirectImageSaver.xpi` が生成される。
+
+xpi は AMO に Self-distribution で提出して署名を取得すると Release / Beta / ESR でも使える xpi になる。
 
 ### ZIP から手動インストール
 

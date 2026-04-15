@@ -429,16 +429,6 @@
   }
 
   function sendRuntimeMessage(message) {
-    return new Promise((resolve, reject) => {
-      chrome.runtime.sendMessage(message, (response) => {
-        const runtimeError = chrome.runtime.lastError;
-        if (runtimeError) {
-          reject(new Error(runtimeError.message));
-          return;
-        }
-
-        resolve(response);
-      });
-    });
+    return browser.runtime.sendMessage(message);
   }
 })();

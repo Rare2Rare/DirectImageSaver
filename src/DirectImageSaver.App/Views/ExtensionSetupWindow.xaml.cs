@@ -1,3 +1,4 @@
+using System.Diagnostics;
 using System.Windows;
 using DirectImageSaver.App.Services;
 using DirectImageSaver.Core;
@@ -29,7 +30,9 @@ public partial class ExtensionSetupWindow : Window
         ExtensionPathTextBox.Text = AppPaths.InstalledExtensionDirectory;
         OpenChromeButton.Content = AppText.ButtonOpenChrome;
         OpenEdgeButton.Content = AppText.ButtonOpenEdge;
+        OpenFirefoxButton.Content = AppText.ButtonOpenFirefox;
         OpenFolderButton.Content = AppText.ButtonOpenExtensionFolder;
+        OpenReleaseUrlButton.Content = AppText.ButtonOpenGithubRelease;
         HintTextBlock.Text = AppText.OnboardingHint;
         CloseButton.Content = AppText.ButtonClose;
     }
@@ -48,6 +51,29 @@ public partial class ExtensionSetupWindow : Window
         if (success && !autoLoaded) ShowBrowserGuide("edge");
     }
 
+    private void OpenFirefoxButton_OnClick(object sender, RoutedEventArgs e)
+    {
+        var success = _browserLauncherService.TryOpenFirefox(out var message, out _);
+        SetStatus(success, message);
+        if (success) ShowBrowserGuide("firefox");
+    }
+
+    private void OpenReleaseUrlButton_OnClick(object sender, RoutedEventArgs e)
+    {
+        try
+        {
+            Process.Start(new ProcessStartInfo
+            {
+                FileName = AppText.FirefoxReleaseUrl,
+                UseShellExecute = true
+            });
+        }
+        catch
+        {
+            // Ignore failures; the user can copy the URL manually.
+        }
+    }
+
     private void OpenFolderButton_OnClick(object sender, RoutedEventArgs e)
     {
         _launcherService.OpenFolder(AppPaths.InstalledExtensionDirectory);
@@ -62,6 +88,7 @@ public partial class ExtensionSetupWindow : Window
     {
         HintTextBlock.Visibility = Visibility.Collapsed;
         BrowserGuidePanel.Visibility = Visibility.Visible;
+        OpenReleaseUrlButton.Visibility = Visibility.Collapsed;
 
         if (browser == "chrome")
         {
@@ -71,13 +98,22 @@ public partial class ExtensionSetupWindow : Window
             GuideStepsTextBlock.Text = AppText.ChromeGuideSteps;
             GuideFallbackTextBlock.Text = AppText.ChromeGuideFallback;
         }
-        else
+        else if (browser == "edge")
         {
             GuideHeaderTextBlock.Text = AppText.EdgeGuideHeader;
             GuideHeaderTextBlock.Foreground =
                 new System.Windows.Media.SolidColorBrush(System.Windows.Media.Color.FromRgb(0x00, 0x78, 0xD4));
             GuideStepsTextBlock.Text = AppText.EdgeGuideSteps;
             GuideFallbackTextBlock.Text = AppText.EdgeGuideFallback;
+        }
+        else
+        {
+            GuideHeaderTextBlock.Text = AppText.FirefoxGuideHeader;
+            GuideHeaderTextBlock.Foreground =
+                new System.Windows.Media.SolidColorBrush(System.Windows.Media.Color.FromRgb(0xE6, 0x6A, 0x00));
+            GuideStepsTextBlock.Text = AppText.FirefoxGuideSteps;
+            GuideFallbackTextBlock.Text = AppText.FirefoxGuideFallback;
+            OpenReleaseUrlButton.Visibility = Visibility.Visible;
         }
     }
 

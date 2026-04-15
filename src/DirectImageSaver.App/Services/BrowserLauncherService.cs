@@ -19,6 +19,12 @@ public sealed class BrowserLauncherService
         @"C:\Program Files\Microsoft\Edge\Application\msedge.exe"
     ];
 
+    private static readonly string[] FirefoxCandidatePaths =
+    [
+        @"C:\Program Files\Mozilla Firefox\firefox.exe",
+        @"C:\Program Files (x86)\Mozilla Firefox\firefox.exe"
+    ];
+
     public bool TryOpenChrome(out string? message, out bool extensionAutoLoaded) =>
         TryOpenBrowser(
             "chrome.exe",
@@ -42,6 +48,38 @@ public sealed class BrowserLauncherService
             AppText.OnboardingEdgeOpenFailed,
             out message,
             out extensionAutoLoaded);
+
+    public bool TryOpenFirefox(out string? message, out bool extensionAutoLoaded)
+    {
+        extensionAutoLoaded = false;
+        var browserPath = ResolveExecutablePath("firefox.exe", FirefoxCandidatePaths);
+        if (string.IsNullOrWhiteSpace(browserPath))
+        {
+            message = AppText.OnboardingFirefoxNotFound;
+            return false;
+        }
+
+        try
+        {
+            using var process = Process.Start(new ProcessStartInfo
+            {
+                FileName = browserPath,
+                UseShellExecute = true
+            });
+            if (process is null)
+            {
+                message = AppText.OnboardingFirefoxOpenFailed;
+                return false;
+            }
+            message = AppText.OnboardingFirefoxOpenedManual;
+            return true;
+        }
+        catch
+        {
+            message = AppText.OnboardingFirefoxOpenFailed;
+            return false;
+        }
+    }
 
     private static bool TryOpenBrowser(
         string executableName,

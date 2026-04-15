@@ -20,6 +20,7 @@ public static class AppText
     public const string ButtonClose = "閉じる";
     public const string ButtonOpenChrome = "Chrome を開く";
     public const string ButtonOpenEdge = "Edge を開く";
+    public const string ButtonOpenFirefox = "Firefox を開く";
     public const string ButtonOpenExtensionFolder = "拡張フォルダーを開く";
     public const string CheckboxSuccessSound = "成功時に音を鳴らす";
     public const string CheckboxErrorSound = "失敗時に音を鳴らす";
@@ -48,6 +49,9 @@ public static class AppText
     public const string OnboardingEdgeNotFound = "Edge が見つかりませんでした。手動で Edge を開き、下のフォルダーを選んで進めてください。";
     public const string OnboardingChromeOpenFailed = "Chrome を開けませんでした。手動で Chrome を開き、下のフォルダーを選んで進めてください。";
     public const string OnboardingEdgeOpenFailed = "Edge を開けませんでした。手動で Edge を開き、下のフォルダーを選んで進めてください。";
+    public const string OnboardingFirefoxOpenedManual = "Firefox を開きました。下の手順で xpi をダウンロードして Firefox にインストールしてください。";
+    public const string OnboardingFirefoxNotFound = "Firefox が見つかりませんでした。手動で Firefox を開き、xpi をインストールしてください。";
+    public const string OnboardingFirefoxOpenFailed = "Firefox を開けませんでした。手動で Firefox を開き、xpi をインストールしてください。";
 
     // Browser-specific navigation guide (shown after browser launch)
     public const string ChromeGuideHeader = "▼ Chrome で拡張機能ページを開く手順";
@@ -61,6 +65,14 @@ public static class AppText
         "① 右上の「…」（横三点）ボタンをクリック\n② 「拡張機能」→「拡張機能の管理」を選択\n③ 拡張機能の一覧ページが開きます";
     public const string EdgeGuideFallback =
         "※ アドレスバーに edge://extensions と入力しても開けます";
+
+    public const string FirefoxGuideHeader = "▼ Firefox に DirectImageSaver を追加する手順";
+    public const string FirefoxGuideSteps =
+        "① 下の「GitHub Release を開く」を押し、最新の .xpi をダウンロード\n② Firefox のウィンドウに xpi ファイルをドラッグ&ドロップ\n③ 表示されるダイアログで「追加」をクリック";
+    public const string FirefoxGuideFallback =
+        "※ Release / Beta では署名済み xpi が必要です。Developer Edition / Nightly / ESR では未署名でも about:config の xpinstall.signatures.required を false にすれば導入できます。";
+    public const string FirefoxReleaseUrl = "https://github.com/Rare2Rare/DirectImageSaver/releases/latest";
+    public const string ButtonOpenGithubRelease = "GitHub Release を開く";
 
     public static string GetTriggerLabel(TriggerMode triggerMode) =>
         triggerMode switch

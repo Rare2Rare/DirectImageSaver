@@ -60,18 +60,22 @@
 
         <UniformGrid Grid.Row="5"
                      Margin="0,0,0,12"
-                     Columns="3"
+                     Columns="4"
                      Rows="1">
             <Button x:Name="OpenChromeButton"
-                    Margin="0,0,6,0"
+                    Margin="0,0,4,0"
                     Height="34"
                     Click="OpenChromeButton_OnClick" />
             <Button x:Name="OpenEdgeButton"
-                    Margin="6,0,6,0"
+                    Margin="4,0,4,0"
                     Height="34"
                     Click="OpenEdgeButton_OnClick" />
+            <Button x:Name="OpenFirefoxButton"
+                    Margin="4,0,4,0"
+                    Height="34"
+                    Click="OpenFirefoxButton_OnClick" />
             <Button x:Name="OpenFolderButton"
-                    Margin="6,0,0,0"
+                    Margin="4,0,0,0"
                     Height="34"
                     Click="OpenFolderButton_OnClick" />
         </UniformGrid>
@@ -98,6 +102,12 @@
                     <TextBlock x:Name="GuideStepsTextBlock"
                                TextWrapping="Wrap"
                                Margin="0,0,0,8" />
+                    <Button x:Name="OpenReleaseUrlButton"
+                            Visibility="Collapsed"
+                            Margin="0,0,0,8"
+                            Padding="14,4"
+                            HorizontalAlignment="Left"
+                            Click="OpenReleaseUrlButton_OnClick" />
                     <TextBlock x:Name="GuideFallbackTextBlock"
                                TextWrapping="Wrap"
                                Foreground="#666666"

@@ -22,6 +22,15 @@
 
 確認: 拡張名が `DirectImageSaver`、ID が `kblklkfadcpplofmmfkkplglcmomicmm`
 
+**Firefox を使うなら:**
+
+1. アプリの「Firefox を開く」を押す
+2. ヒントエリアの「GitHub Release を開く」から `DirectImageSaver.xpi` をダウンロード
+3. Firefox のウィンドウに xpi をドラッグ&ドロップ
+4. 「追加」をクリック
+
+Release / Beta は AMO 署名済み xpi が必要。Developer Edition / Nightly / ESR は `about:config` で `xpinstall.signatures.required` を `false` にすれば未署名でも導入できる。
+
 ## 3. 試す
 
 1. 画像のあるページを開く
